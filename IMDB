@@ -1,170 +1,208 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # House Price Prediction
-
-# ## Importing Libraries
-# IMPORTING SOME REQUIRED DEPENDENCIES FOR THE "HOUSE PRICE PREDICTION" MODEL
-# 
+# # EXPLORATORY IMDB DATA ANALYSIS
 # 
 
-# In[3]:
+# ### Importing Libraries
+
+# In[2]:
 
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split
-from xgboost import XGBRegressor
-from sklearn import metrics
 
 
-# ## Exploring and Observing the Housing Dataset
-# OBSERVING THE DATA SET TO GET THE REQUIRED OBSERVATION AND GET A BETTER UNDERSTANDING OVER THE DATSET
+# ### Reading the IMDB Data
+
+# In[3]:
+
+
+d_f=pd.read_csv('D:\Datasheet\movie_metadata.csv')
+
+
+# ## ---------------------------------------------------------------------------------------------------------------------------------
+
+# ## EXPLORATION OF DATA
 
 # In[4]:
 
 
-hdf=pd.read_csv('D:\Datasheet\data (2).csv')
+d_f.head(10)
 
 
 # In[5]:
 
 
-hdf.head()
+d_f=d_f.drop(['actor_2_facebook_likes','actor_2_name','actor_3_facebook_likes'] ,axis=1)
 
 
 # In[6]:
 
 
-hdf.isnull().sum()
+d_f
+
+
+# In[118]:
+
+
+d_f.describe()
 
 
 # In[7]:
 
 
-hdf.info()
+d_f.fillna(0)
 
 
 # In[8]:
 
 
-Y=hdf['Price']
-X=hdf.drop(['Price'],axis=1)
+d_f.groupby('genres')[['movie_title','language']].sum().reset_index()
 
 
 # In[9]:
 
 
-Y,X
+d_f_genres=d_f['genres'].unique()
 
 
 # In[10]:
 
 
-print(X.shape,Y.shape)
+len(d_f_genres)
 
 
 # In[11]:
 
 
-hdf.describe()
+d_f.groupby('language')[['movie_title']].sum().reset_index()
 
-
-# ## CORRELATION & HEATMAP
-# CORRELATION BETWEEN EVERY FEATURE OF DATASET
-# 
 
 # In[12]:
 
 
-corr_hdf=hdf.corr()
+len(d_f['language'].unique())
+len(d_f['movie_title'].unique())
 
 
-# ### HEATMAP:
-# HEAT OF THE CORRELATION BETWEEN THE FEATURES OF THE DATASET
+# # OBSERVED DATA
 
-# In[13]:
+# The Data Contains 914 unique genres of movies<br>
+# The Data has a listing of 4917 movies<br>
+# The Data Lists movies in 48 unique Languages
+
+# # VISUALIZATION OF DATA
+
+# ### OBSERVATION ON THE BASIS OF IMDB SCORE
+
+# In[23]:
 
 
-plt.figure(figsize=(16,17))
+sns.countplot(x='imdb_score',data=d_f)
+sns.set(font_scale=0.1)
+sns.set(rc={'figure.figsize':(30,20)})
+plt.show()
 
-sns.heatmap(corr_hdf,cbar=True,square=True,fmt='1f',annot=True,annot_kws={'size':10},cmap='Blues')
+
+# #### It can be Observed that the highest number of movies  <br> has got IMDB Score of 6.7 following with second highest <br> with 6.6
+
+# ### OBSERVATION ON THE BASIS OF FACEBOOK LIKES
+
+# In[133]:
 
 
-# ### SPLITTING DATA
-# SPLITTING THE TRAINING AND TESTING DATA BY 4:1
+G1=d_f[0:50].groupby('duration')[['movie_facebook_likes']].sum().reset_index()
+
+
+# In[145]:
+
+
+sns.barplot(x='movie_facebook_likes',y='duration',data=G1)
+sns.set(rc={'figure.figsize':(80,70)})
+sns.set(font_scale=3)
+
+
+# In[120]:
+
+
+G2=d_f.groupby('language')[['duration']].sum().reset_index()
+
+
+# In[146]:
+
+
+sns.barplot(x='duration',y='language', data = G2)
+sns.set(font_scale=3)
+
+
+# ### Count plot of Duration of movies
+
+# In[117]:
+
+
+sns.countplot(x='duration',data=d_f)
+sns.set(font_scale=1)
+sns.set(rc={'figure.figsize':(80,70)})
+plt.show()
+
+
+# ### OBSERVATION ON THE BASIS OF TITLE YEAR AND BUDGET
 # 
-
-# In[14]:
-
-
-X_tr,X_t,Y_tr,Y_t=train_test_split(X,Y,test_size=0.2,random_state=2)
-
-
-# In[15]:
-
-
-print(X.shape,X_tr.shape,X_t.shape)
-
-
-# ### TRAINING
-
-# In[16]:
-
-
-Md=XGBRegressor()
-Md.fit(X_tr,Y_tr)
-
-
-# ### Prediction 
-
-# In[17]:
-
-
-Md_p=Md.predict(X_tr)
-
-
-# In[18]:
-
-
-x1=metrics.mean_absolute_error(Y_tr,Md_p)
-X2= metrics.r2_score(Y_tr,Md_p)
-
+# 
 
 # In[19]:
 
 
-print(x1)
-print(X2)
+G3=d_f.groupby('title_year')[['budget']].sum().reset_index()
 
 
-# In[21]:
+# In[20]:
 
 
-plt.scatter(Y_tr,Md_p)
-plt.xlabel("Actual Prices")
-plt.ylabel("Predicted Prices")
-plt.title('Actual Price / Predicted Price')
+sns.barplot(x='title_year',y='budget',data=G3)
+
+
+# ### OBSERVATION ON THE BASIS  OF NO. OF MOVIES PER YEAR
+
+# In[74]:
+
+
+sns.countplot(x='title_year',data=d_f)
+sns.set(font_scale=0.05)
+sns.set(rc={'figure.figsize':(70,60)})
 plt.show()
 
 
-# ### Test Data
-# 
+# ### OBSERVATION ON THE BASIS OF LANGUAGE
 
-# In[40]:
-
-
-t_d_prediction=Md.predict(X_t)
+# In[67]:
 
 
-# In[42]:
+sns.countplot(x='language',data=d_f)
+sns.set(font_scale=0.1)
+sns.set(rc={'figure.figsize':(40,30)})
+plt.show()
 
 
-S1= metrics.r2_score(Y_t,t_d_prediction)
-S2 = metrics.mean_absolute_error(Y_t,t_d_prediction)
+# ### OBSERVATION ON THE BASIS OF ASPECT RATIO
 
-print("R2 Value error : ", S1 )
-print("Mean absolute Error : ",S2)
+# In[88]:
 
+
+sns.countplot(x='aspect_ratio',data=d_f)
+sns.set(font_scale=20)
+sns.set(rc={'figure.figsize':(40,30)})
+plt.show()
+
+
+# # CONCLUSION
+
+# It can be Observed that the highest number of movies has got IMDB Score of 6.7 following with second highestwith 6.6<br>
+# Most movies has a time duration of 90 mins.<br>
+# Almost all the movies are produced in English language.<br>
+# Most movies has an aspect ratio of 2.35 and 1.85<br>
+# Highest number of movies were produced in 2008 following with the second highest in 2014<br>
+# Movies with 150-175 minutes duration got the highest no. of facebook likes
