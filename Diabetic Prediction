@@ -1,0 +1,253 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# # DIABETIC PREDICTION
+
+# ## IMPORTING THE REQUIRED DEPENDENCIES
+
+# In[1]:
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+
+
+# ### EXPLORING AND ANALYSING THE DATASET
+
+# In[2]:
+
+
+dp=pd.read_csv('D:\Datasheet\diabetes.csv')
+
+
+# In[3]:
+
+
+dp.head()
+
+
+# In[4]:
+
+
+dp.tail()
+
+
+# In[5]:
+
+
+dp.isnull().sum()
+
+
+# In[6]:
+
+
+dp.describe()
+
+
+# In[7]:
+
+
+dp.groupby('Outcome').mean()
+
+
+# In[8]:
+
+
+dp['Outcome'].value_counts()
+
+
+# ### OBSERVING THE DATA USING VISUALS
+
+# In[9]:
+
+
+sns.countplot(x='Outcome',data=dp)
+sns.set(font_scale=0.1)
+sns.set(rc={'figure.figsize':(30,20)})
+plt.show()
+
+
+# ### SPLITTING OF DATA
+
+# In[60]:
+
+
+X=dp.drop(columns='Outcome',axis=1)
+Y=dp['Outcome']
+
+
+# In[61]:
+
+
+X
+
+
+# In[62]:
+
+
+Y
+
+
+# ### DATA STANDARDIZATION
+
+# In[63]:
+
+
+sc=StandardScaler()
+
+
+# In[64]:
+
+
+sd=sc.fit_transform(X)
+
+
+# In[65]:
+
+
+sd
+
+
+# In[66]:
+
+
+X=sd
+
+
+# ### TRAIN TEST DATA SPLIT
+
+# In[67]:
+
+
+X_tr,X_t,Y_tr,Y_t=train_test_split(X,Y,test_size=0.2,stratify=Y, random_state=2)
+
+
+# In[68]:
+
+
+print(X_tr)
+
+
+# In[69]:
+
+
+print(X_t)
+
+
+# In[70]:
+
+
+print(Y_tr)
+
+
+# In[71]:
+
+
+print(Y_t)
+
+
+# ### TRAINING THE MODEL
+
+# In[72]:
+
+
+cf=svm.SVC(kernel='linear')
+
+
+# In[73]:
+
+
+cf.fit(X_tr,Y_tr)
+
+
+# ### TESTING THE MODEL 
+# #### OVER TRAINING DATA
+
+# In[74]:
+
+
+X_tr_p=cf.predict(X_tr)
+
+
+# In[75]:
+
+
+tr_accuracy=accuracy_score(X_tr_p,Y_tr)
+
+
+# #### ACCURACY SCORE
+
+# In[76]:
+
+
+tr_accuracy
+
+
+# #### OVER TEST DATA
+
+# In[77]:
+
+
+X_t_p=cf.predict(X_t)
+
+
+# In[78]:
+
+
+t_accuracy=accuracy_score(p,Y_t)
+
+
+# #### ACCURACY SCORE
+
+# In[79]:
+
+
+t_accuracy
+
+
+# ### PREDICTIVE SYSTEM
+# 
+
+# In[82]:
+
+
+input_l=(6,148,72,35,0,33.6,0.627,50)
+
+
+# In[85]:
+
+
+input_a= np.asarray(input_l)
+input_r=input_a.reshape(1,-1)
+std=sc.fit_transform(input_r)
+print(std)
+
+
+# In[88]:
+
+
+pre=cf.predict(std)
+
+
+# In[89]:
+
+
+if(pre==0):
+    print('Person is non diabetic')
+elif(pre==1) : 
+    print("Person is diabetic")
+else:
+    print("Wrong Input")
+
+
+# In[ ]:
+
+
+
+
